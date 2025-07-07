@@ -11,7 +11,8 @@
     .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; }
     .product { background: white; border-radius: 10px; padding: 0.5rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
     .cart { margin-top: 1.5rem; background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .cart-item { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+    .cart-item { display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center; }
+    .cart-item button { background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 0; }
     .total { font-size: 1.2rem; text-align: right; margin-top: 1rem; }
     button { background: #ff6f61; color: white; border: none; padding: 0.7rem 1rem; border-radius: 5px; font-size: 1rem; cursor: pointer; margin-top: 1rem; width: 100%; }
     button:hover { background: #e55b50; }
@@ -76,6 +77,14 @@
       renderCart();
     }
 
+    function removeFromCart(productId) {
+      if (cart[productId]) {
+        cart[productId].qty--;
+        if (cart[productId].qty <= 0) delete cart[productId];
+        renderCart();
+      }
+    }
+
     function renderCart() {
       cartItems.innerHTML = '';
       let total = 0;
@@ -84,7 +93,10 @@
         total += subtotal;
         const row = document.createElement('div');
         row.className = 'cart-item';
-        row.innerHTML = `${item.name} x ${item.qty} = ${subtotal} บาท`;
+        row.innerHTML = `
+          <span>${item.name} x ${item.qty} = ${subtotal} บาท</span>
+          <button onclick="removeFromCart(${item.id})">&minus;</button>
+        `;
         cartItems.appendChild(row);
       });
       totalDisplay.textContent = total;
