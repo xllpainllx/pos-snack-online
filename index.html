@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS ขายขนมนักเรียน</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    header { background: #ff6f61; color: white; padding: 1rem; text-align: center; font-size: 1.5rem; }
+    .container { padding: 1rem; }
+    .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; }
+    .product { background: white; border-radius: 10px; padding: 0.5rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
+    .cart { margin-top: 1.5rem; background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .cart-item { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+    .total { font-size: 1.2rem; text-align: right; margin-top: 1rem; }
+    button { background: #ff6f61; color: white; border: none; padding: 0.7rem 1rem; border-radius: 5px; font-size: 1rem; cursor: pointer; margin-top: 1rem; width: 100%; }
+    button:hover { background: #e55b50; }
+    .history { margin-top: 2rem; font-size: 0.9rem; color: #333; }
+    .summary { font-weight: bold; margin-top: 1rem; text-align: right; }
+  </style>
+</head>
+<body>
+  <header>POS ขายขนมนักเรียน</header>
+  <div class="container">
+    <div class="products" id="product-list"></div>
+
+    <div class="cart">
+      <h3>รายการที่เลือก</h3>
+      <div id="cart-items"></div>
+      <div class="total">รวม: <span id="total">0</span> บาท</div>
+      <button onclick="checkout()">รับเงิน</button>
+    </div>
+
+    <div class="history">
+      <h3>ประวัติยอดขายวันนี้</h3>
+      <ul id="sales-history"></ul>
+      <div class="summary">ยอดขายรวมทั้งหมด: <span id="total-sales">0</span> บาท</div>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      { id: 1, name: "ขนมซอง 5 บาท", price: 5 },
+      { id: 2, name: "น้ำแก้ว 5 บาท", price: 5 },
+      { id: 3, name: "ลูกชิ้นทอด 5 บาท", price: 5 },
+      { id: 4, name: "ไอสครีม 5 บาท", price: 5 },
+      { id: 5, name: "ไอสครีม 10 บาท", price: 10 },
+      { id: 6, name: "นักเก็ตเฟนฟาย 10 บาท", price: 10 },
+      { id: 7, name: "ยำมาม่า 10 บาท", price: 10 },
+    ];
+
+    let cart = {};
+    let salesHistory = [];
+    let totalSales = 0;
+
+    const productList = document.getElementById('product-list');
+    const cartItems = document.getElementById('cart-items');
+    const totalDisplay = document.getElementById('total');
+    const salesHistoryList = document.getElementById('sales-history');
+    const totalSalesDisplay = document.getElementById('total-sales');
+
+    function renderProducts() {
+      productList.innerHTML = '';
+      products.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'product';
+        el.innerHTML = `<strong>${p.name}</strong><br>${p.price} บาท`;
+        el.onclick = () => addToCart(p);
+        productList.appendChild(el);
+      });
+    }
+
+    function addToCart(product) {
+      if (!cart[product.id]) cart[product.id] = { ...product, qty: 0 };
+      cart[product.id].qty++;
+      renderCart();
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = '';
+      let total = 0;
+      Object.values(cart).forEach(item => {
+        const subtotal = item.qty * item.price;
+        total += subtotal;
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+        row.innerHTML = `${item.name} x ${item.qty} = ${subtotal} บาท`;
+        cartItems.appendChild(row);
+      });
+      totalDisplay.textContent = total;
+    }
+
+    function checkout() {
+      if (Object.keys(cart).length === 0) return alert("ยังไม่มีรายการสินค้า");
+      const total = parseInt(totalDisplay.textContent);
+      const timestamp = new Date().toLocaleTimeString();
+      salesHistory.push(`เวลา ${timestamp} - ${total} บาท`);
+      totalSales += total;
+      renderSalesHistory();
+      alert("รวมเงินทั้งหมด: " + total + " บาท\n\nขอบคุณค่ะ!");
+      cart = {};
+      renderCart();
+    }
+
+    function renderSalesHistory() {
+      salesHistoryList.innerHTML = '';
+      salesHistory.forEach(entry => {
+        const li = document.createElement('li');
+        li.textContent = entry;
+        salesHistoryList.appendChild(li);
+      });
+      totalSalesDisplay.textContent = totalSales;
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
